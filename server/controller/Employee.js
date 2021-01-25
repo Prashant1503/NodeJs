@@ -72,32 +72,43 @@ exports.applyForLeave = async(req,res) => {
 
 exports.markLeaves = async (req,res) => {
 
-    const {year,month,date} = req.body;
+    const errors = validationResult(req);
 
-    // const errors = validationResult(req);
-
-    // if(!errors.isEmpty()) {
-    //     return res.status(422).json({errors : errors.array()});
-    // }
+    if(!errors.isEmpty()) {
+        return res.status(422).json({errors : errors.array()});
+    }
     try {
-
-        const id = req.user.id;
-
-
+        
         await Attendance.find({
-            employeeID : id,
+            employeeID : req.user.id,
             month : new Date().getMonth()+1,
             date : new Date().getDate(),
             year : new Date().getFullYear()
-        },(err,attendance) => {
+        },(err,docs) => {
 
-            if(err) {
-                throw err;
+            var found = 0;
+
+            if(docs.length> 0) {
+                found = 1;
             }
             else {
-                return res.json({attendance});
+
+                var newAttendance = new Attendance();
+                newAttendance.employeeID = req.user.id;
+                newAttendance.year = new Date().getFullYear();
+                newAttendance.month = new Date().getMonth() + 1;
+                newAttendance.date = new Date().getDate() +1;
+                newAttendance.present = 1;
+
+                newAttendance.save(function saveAttendace(err) {
+                    if(err) {
+                        return res.status(500).json({err : 'Failed to mark attendance'});
+                    }
+                    
+                    return res.status(200).json({newAttendance});
+                })
+
             }
-            
         });
 
 
@@ -186,16 +197,26 @@ exports.viewAllProjects = async(req,res) => {
  *  -> Skills,contactNumber
  */
 
-//  exports.updateProfile =  (req,res) => {
+ exports.updateProfile =  async(req,res) => {
 
-//     try {
+    try {
+
+        let skills = [];
         
-//         await User.findByIdAndUpdate({_id : req.user.id},
-//             {"$push" : {""}})
-//     } catch (err) {
-//         console.log(`Profile update err : ${err}`);
-//         return res.status(500).send('Server err');
-//     }
+        await User.findOne({_id : req.user.id},
+            {
+                "contactNumber" : req.body.contactNumber,
+                "skills" : req.body.skills
+            })
+            .exec((err,docs) => {
+
+                
+            })
+        
+    } catch (err) {
+        console.log(`Profile update err : ${err}`);
+        return res.status(500).send('Server err');
+    }
 
 
-//  }
+ }

@@ -47,8 +47,7 @@ router.get('/view-all-projects',authMiddleware,isEmployee,empController.viewAllP
  * @desc : update profile i.e (Skills,contactNumber)
  * @access : protected
  */
-
- router.post('/update-profile',authMiddleware,isEmployee);
+ router.post('/update-profile',authMiddleware,isEmployee,empController.updateProfile);
 
 
 

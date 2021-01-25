@@ -7,7 +7,7 @@ const app = express();
 
 // cors option
 const corsOption = {
-    origin : 'http://localhost:4000/',
+    "Access-Control-Allow-Origin" : "http://localhost:4000/api/",
     optionSuccessStatus : 200
 };
 
